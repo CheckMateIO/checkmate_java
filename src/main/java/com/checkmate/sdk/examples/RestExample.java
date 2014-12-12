@@ -10,8 +10,7 @@ import com.checkmate.sdk.reservations.Property;
 */
 public class RestExample {
 
-  //public static final String API_KEY = "NOTAREALKEY";
-  public static final String API_KEY = "146b2427e835372f515a2c75bb2dbf57da2a57cc18b9f677d3da136832e6760e";
+  private static final String API_KEY = "NOTAREALKEY";
 
   public static void main(String[] args) throws Exception {
 
