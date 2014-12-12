@@ -38,11 +38,11 @@ public class CheckmateClient {
   private static final String DEFAULT_ENDPOINT = "https://partners-staging.checkmate.io";
 
   // Keys and values for headers
-  private static final String CONTENT_HEADER_KEY = "Content-Type";
-  private static final String CONTENT_HEADER_VALUE = "application/json";
-  private static final String ACCEPT_HEADER_KEY = "Accept";
-  private static final String ACCEPT_HEADER_VALUE = "application/json";
-  private static final String API_TOKEN_HEADER_KEY = "X-CheckMate-API-Token";
+  protected static final String CONTENT_HEADER_KEY = "Content-Type";
+  protected static final String CONTENT_HEADER_VALUE = "application/json";
+  protected static final String ACCEPT_HEADER_KEY = "Accept";
+  protected static final String ACCEPT_HEADER_VALUE = "application/json";
+  protected static final String API_TOKEN_HEADER_KEY = "X-CheckMate-API-Token";
 
   private String apiEndpoint;
   private String apiKey;

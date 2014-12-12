@@ -1,5 +1,6 @@
 package com.checkmate.sdk;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,10 +12,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import org.apache.http.Header;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.apache.http.client.methods.HttpUriRequest;
+
+import java.net.URI;
 
 import com.checkmate.sdk.CheckmateClient;
 import com.checkmate.sdk.reservations.Property;
@@ -66,6 +70,16 @@ public class CheckmateClientTest {
     CheckmateResponse response = client.createReservation(reservation);
 
     verify(httpClient).execute(request.capture());
-    //TODO(FINISH THIS TEST)
+
+    HttpUriRequest actualRequest = request.getValue();
+    assertEquals(new URI("https://partners-staging.checkmate.io/reservations"),
+        actualRequest.getURI());
+    assertEquals("POST", actualRequest.getMethod());
+    assertEquals(CheckmateClient.CONTENT_HEADER_VALUE,
+        actualRequest.getFirstHeader(CheckmateClient.CONTENT_HEADER_KEY).getValue());
+    assertEquals(CheckmateClient.ACCEPT_HEADER_VALUE,
+        actualRequest.getFirstHeader(CheckmateClient.ACCEPT_HEADER_KEY).getValue());
+    assertEquals(API_KEY,
+        actualRequest.getFirstHeader(CheckmateClient.API_TOKEN_HEADER_KEY).getValue());
   }
 }
