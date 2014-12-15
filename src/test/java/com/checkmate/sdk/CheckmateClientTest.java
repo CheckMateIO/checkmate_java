@@ -34,6 +34,8 @@ public class CheckmateClientTest {
   private static final String RESERVATION_ID = "skdjf";
   private static final String PROPERTY_ID = "93";
   private static final String CONFIRMATION_NUMBER = "werlskdfj";
+  private static final String GET_METHOD = "GET";
+  private static final String POST_METHOD = "POST";
 
   @Mock HttpClient httpClient;
   @Mock BasicHttpResponse httpResponse;
@@ -78,7 +80,7 @@ public class CheckmateClientTest {
     HttpUriRequest actualRequest = request.getValue();
     assertEquals(new URI(CheckmateClient.DEFAULT_ENDPOINT + "/reservations"),
         actualRequest.getURI());
-    assertEquals("POST", actualRequest.getMethod());
+    assertEquals(POST_METHOD, actualRequest.getMethod());
     assertHeaders(actualRequest);
     assertEquals(CheckmateClient.CONTENT_HEADER_VALUE,
         actualRequest.getFirstHeader(CheckmateClient.CONTENT_HEADER_KEY).getValue());
@@ -95,7 +97,7 @@ public class CheckmateClientTest {
     HttpUriRequest actualRequest = request.getValue();
     assertEquals(new URI(CheckmateClient.DEFAULT_ENDPOINT + "/reservations/" + RESERVATION_ID),
         actualRequest.getURI());
-    assertEquals("GET", actualRequest.getMethod());
+    assertEquals(GET_METHOD, actualRequest.getMethod());
     assertHeaders(actualRequest);
   }
 
@@ -114,7 +116,7 @@ public class CheckmateClientTest {
     HttpUriRequest actualRequest = request.getValue();
     assertEquals(new URI(CheckmateClient.DEFAULT_ENDPOINT + "/properties/" + PROPERTY_ID + "/reservations"),
         actualRequest.getURI());
-    assertEquals("GET", actualRequest.getMethod());
+    assertEquals(GET_METHOD, actualRequest.getMethod());
     assertHeaders(actualRequest);
   }
 
@@ -134,7 +136,7 @@ public class CheckmateClientTest {
     HttpUriRequest actualRequest = request.getValue();
     assertEquals(new URI(CheckmateClient.DEFAULT_ENDPOINT + "/reservations?confirmation_number=" +
         CONFIRMATION_NUMBER + "&exclude_properties=true"), actualRequest.getURI());
-    assertEquals("GET", actualRequest.getMethod());
+    assertEquals(GET_METHOD, actualRequest.getMethod());
     assertHeaders(actualRequest);
   }
 

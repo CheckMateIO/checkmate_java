@@ -7,6 +7,9 @@ import org.apache.http.message.BasicNameValuePair;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A wrapper for a request to list reservations.
+ */
 public class ListReservationsWrapper implements ResourceWrapper {
   private ReservationsOptions options;
 

@@ -1,5 +1,8 @@
 package com.checkmate.sdk.reservations;
 
+/**
+ * Represents a set of options for listing reservations.
+ */
 public class ReservationsOptions {
   private String propertyId;
   private String confirmationNumber;
