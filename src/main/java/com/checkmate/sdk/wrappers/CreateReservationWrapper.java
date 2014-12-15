@@ -8,15 +8,15 @@ import com.checkmate.sdk.reservations.Reservation;
  * Contains a Reservation object and any other parameters that can be associated
  * with a request to create a reservation.
  */
-public class ReservationWrapper implements ResourceWrapper {
+public class CreateReservationWrapper implements ResourceWrapper {
   private Reservation reservation;
   private String propertyId;
 
-  public ReservationWrapper(Reservation reservation) {
+  public CreateReservationWrapper(Reservation reservation) {
     this.reservation = reservation;
   }
 
-  public ReservationWrapper(Reservation reservation, String propertyId) {
+  public CreateReservationWrapper(Reservation reservation, String propertyId) {
     this(reservation);
     this.propertyId = propertyId;
   }
