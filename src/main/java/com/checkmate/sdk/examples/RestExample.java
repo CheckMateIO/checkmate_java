@@ -2,9 +2,10 @@ package com.checkmate.sdk.examples;
 
 import com.checkmate.sdk.CheckmateClient;
 import com.checkmate.sdk.CheckmateResponse;
-import com.checkmate.sdk.reservations.Property;
-import com.checkmate.sdk.reservations.Reservation;
-import com.checkmate.sdk.reservations.ReservationsOptions;
+import com.checkmate.sdk.entities.Address;
+import com.checkmate.sdk.entities.Property;
+import com.checkmate.sdk.entities.Reservation;
+import com.checkmate.sdk.entities.ReservationsOptions;
 
 /**
 * Contains examples of how to use the CheckmateClient.
@@ -46,6 +47,17 @@ public class RestExample {
         .build();
 
     response = client.listReservations(options);
+    System.out.println(response.getBodyAsString());
+
+    // Fetches a property
+    Address propertyAddress = new Address.Builder()
+        .setStreet("123 Happy Ln")
+        .setCity("San Antonio")
+        .setRegion("TX")
+        .setPostalCode("34567")
+        .setCountryCode("US")
+        .build();
+    response = client.getProperty("Hotel Sun", "12345674567", propertyAddress);
     System.out.println(response.getBodyAsString());
   }
 }

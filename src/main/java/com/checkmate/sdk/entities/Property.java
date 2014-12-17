@@ -1,4 +1,4 @@
-package com.checkmate.sdk.reservations;
+package com.checkmate.sdk.entities;
 
 /**
  * Used to represent a property in the context of creating a new reservation.
