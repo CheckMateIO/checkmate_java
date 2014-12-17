@@ -2,8 +2,9 @@ package com.checkmate.sdk.examples;
 
 import com.checkmate.sdk.CheckmateClient;
 import com.checkmate.sdk.CheckmateResponse;
-import com.checkmate.sdk.reservations.Reservation;
 import com.checkmate.sdk.reservations.Property;
+import com.checkmate.sdk.reservations.Reservation;
+import com.checkmate.sdk.reservations.ReservationsOptions;
 
 /**
 * Contains examples of how to use the CheckmateClient.
@@ -32,6 +33,19 @@ public class RestExample {
 
     // Create a reservation
     CheckmateResponse response = client.createReservation(res);
+    System.out.println(response.getBodyAsString());
+
+    // Retrieves a reservation
+    response = client.showReservation("123345slfdkj");
+    System.out.println(response.getBodyAsString());
+
+    // Lists reservations
+    ReservationsOptions options = new ReservationsOptions.Builder()
+        .setExcludeProperties(true)
+        .setConfirmationNumber("234908sdf")
+        .build();
+
+    response = client.listReservations(options);
     System.out.println(response.getBodyAsString());
   }
 }

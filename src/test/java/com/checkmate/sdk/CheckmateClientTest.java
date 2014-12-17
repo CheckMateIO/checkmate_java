@@ -23,6 +23,7 @@ import java.net.URI;
 import com.checkmate.sdk.CheckmateClient;
 import com.checkmate.sdk.reservations.Property;
 import com.checkmate.sdk.reservations.Reservation;
+import com.checkmate.sdk.reservations.ReservationsOptions;
 
 /**
  * Unit tests for the CheckmateClient.
@@ -30,6 +31,11 @@ import com.checkmate.sdk.reservations.Reservation;
 @RunWith(MockitoJUnitRunner.class)
 public class CheckmateClientTest {
   private static final String API_KEY = "NOTAREALKEY";
+  private static final String RESERVATION_ID = "skdjf";
+  private static final String PROPERTY_ID = "93";
+  private static final String CONFIRMATION_NUMBER = "werlskdfj";
+  private static final String GET_METHOD = "GET";
+  private static final String POST_METHOD = "POST";
 
   @Mock HttpClient httpClient;
   @Mock BasicHttpResponse httpResponse;
@@ -72,14 +78,72 @@ public class CheckmateClientTest {
     verify(httpClient).execute(request.capture());
 
     HttpUriRequest actualRequest = request.getValue();
-    assertEquals(new URI("https://partners-staging.checkmate.io/reservations"),
+    assertEquals(new URI(CheckmateClient.DEFAULT_ENDPOINT + "/reservations"),
         actualRequest.getURI());
-    assertEquals("POST", actualRequest.getMethod());
+    assertEquals(POST_METHOD, actualRequest.getMethod());
+    assertHeaders(actualRequest);
     assertEquals(CheckmateClient.CONTENT_HEADER_VALUE,
         actualRequest.getFirstHeader(CheckmateClient.CONTENT_HEADER_KEY).getValue());
+  }
+
+  @Test
+  public void showReservation() throws Exception {
+    ArgumentCaptor<HttpUriRequest> request = ArgumentCaptor.forClass(HttpUriRequest.class);
+    when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(httpResponse);
+    CheckmateResponse response = client.showReservation(RESERVATION_ID);
+
+    verify(httpClient).execute(request.capture());
+
+    HttpUriRequest actualRequest = request.getValue();
+    assertEquals(new URI(CheckmateClient.DEFAULT_ENDPOINT + "/reservations/" + RESERVATION_ID),
+        actualRequest.getURI());
+    assertEquals(GET_METHOD, actualRequest.getMethod());
+    assertHeaders(actualRequest);
+  }
+
+  @Test
+  public void listReservationsPropertyId() throws Exception {
+    ReservationsOptions options = new ReservationsOptions.Builder()
+        .setPropertyId(PROPERTY_ID)
+        .build();
+
+    ArgumentCaptor<HttpUriRequest> request = ArgumentCaptor.forClass(HttpUriRequest.class);
+    when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(httpResponse);
+    CheckmateResponse response = client.listReservations(options);
+
+    verify(httpClient).execute(request.capture());
+
+    HttpUriRequest actualRequest = request.getValue();
+    assertEquals(new URI(CheckmateClient.DEFAULT_ENDPOINT + "/properties/" + PROPERTY_ID + "/reservations"),
+        actualRequest.getURI());
+    assertEquals(GET_METHOD, actualRequest.getMethod());
+    assertHeaders(actualRequest);
+  }
+
+  @Test
+  public void listReservationsConfirmationExcludeProperty() throws Exception {
+    ReservationsOptions options = new ReservationsOptions.Builder()
+        .setConfirmationNumber(CONFIRMATION_NUMBER)
+        .setExcludeProperties(true)
+        .build();
+
+    ArgumentCaptor<HttpUriRequest> request = ArgumentCaptor.forClass(HttpUriRequest.class);
+    when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(httpResponse);
+    CheckmateResponse response = client.listReservations(options);
+
+    verify(httpClient).execute(request.capture());
+
+    HttpUriRequest actualRequest = request.getValue();
+    assertEquals(new URI(CheckmateClient.DEFAULT_ENDPOINT + "/reservations?confirmation_number=" +
+        CONFIRMATION_NUMBER + "&exclude_properties=true"), actualRequest.getURI());
+    assertEquals(GET_METHOD, actualRequest.getMethod());
+    assertHeaders(actualRequest);
+  }
+
+  private void assertHeaders(HttpUriRequest request) {
     assertEquals(CheckmateClient.ACCEPT_HEADER_VALUE,
-        actualRequest.getFirstHeader(CheckmateClient.ACCEPT_HEADER_KEY).getValue());
+        request.getFirstHeader(CheckmateClient.ACCEPT_HEADER_KEY).getValue());
     assertEquals(API_KEY,
-        actualRequest.getFirstHeader(CheckmateClient.API_TOKEN_HEADER_KEY).getValue());
+        request.getFirstHeader(CheckmateClient.API_TOKEN_HEADER_KEY).getValue());
   }
 }

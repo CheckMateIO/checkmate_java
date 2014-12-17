@@ -5,6 +5,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -26,7 +27,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import com.checkmate.sdk.reservations.Reservation;
-import com.checkmate.sdk.wrappers.ReservationWrapper;
+import com.checkmate.sdk.reservations.ReservationsOptions;
+import com.checkmate.sdk.wrappers.CreateReservationWrapper;
+import com.checkmate.sdk.wrappers.ListReservationsWrapper;
+import com.checkmate.sdk.wrappers.ShowReservationWrapper;
 import com.checkmate.sdk.wrappers.ResourceWrapper;
 
 /**
@@ -35,7 +39,7 @@ import com.checkmate.sdk.wrappers.ResourceWrapper;
  */
 public class CheckmateClient {
 
-  private static final String DEFAULT_ENDPOINT = "https://partners-staging.checkmate.io";
+  protected static final String DEFAULT_ENDPOINT = "https://partners-staging.checkmate.io";
 
   // Keys and values for headers
   protected static final String CONTENT_HEADER_KEY = "Content-Type";
@@ -69,7 +73,7 @@ public class CheckmateClient {
    */
   public CheckmateResponse createReservation(final Reservation reservation,
       String propertyId) {
-    ReservationWrapper wrapper = new ReservationWrapper(reservation, propertyId);
+    CreateReservationWrapper wrapper = new CreateReservationWrapper(reservation, propertyId);
     HttpUriRequest request = createPostRequest(wrapper);
     return handleResponse(request);
   }
@@ -79,10 +83,28 @@ public class CheckmateClient {
   * on the Reservation object.
   */
   public CheckmateResponse createReservation(final Reservation reservation) {
-    ReservationWrapper wrapper = new ReservationWrapper(reservation);
+    CreateReservationWrapper wrapper = new CreateReservationWrapper(reservation);
     HttpUriRequest request = createPostRequest(wrapper);
     return handleResponse(request);
   }
+
+  /**
+   * Fetches the reservation that corresponds to the reservation id.
+   */
+  public CheckmateResponse showReservation(final String reservationId) {
+    ShowReservationWrapper wrapper = new ShowReservationWrapper(reservationId);
+    HttpUriRequest request = createGetRequest(wrapper);
+    return handleResponse(request);
+  }
+
+  /**
+   * Fetches a list of reservations.
+   */
+   public CheckmateResponse listReservations(final ReservationsOptions options) {
+     ListReservationsWrapper wrapper = new ListReservationsWrapper(options);
+     HttpUriRequest request = createGetRequest(wrapper);
+     return handleResponse(request);
+   }
 
   // ------- private methods ----------------
 
@@ -101,6 +123,14 @@ public class CheckmateClient {
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException("The encoding provided is not supported", e);
     }
+    return request;
+  }
+
+  private HttpUriRequest createGetRequest(final ResourceWrapper resourceWrapper) {
+    URI uri = buildUri(resourceWrapper.getPath(), resourceWrapper.toQueryParams());
+
+    HttpGet request = new HttpGet(uri);
+    request.setHeaders(defaultHeaders());
     return request;
   }
 
