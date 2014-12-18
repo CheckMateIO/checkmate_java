@@ -219,7 +219,7 @@ public class CheckmateClientTest {
     ArgumentCaptor<HttpUriRequest> request = ArgumentCaptor.forClass(HttpUriRequest.class);
     when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(httpResponse);
     CheckmateResponse response = client.bulkCreateReservations(
-        Arrays.asList(reservation1, reservation2), "" /* no webhook */);
+        Arrays.asList(reservation1, reservation2));
 
     verify(httpClient).execute(request.capture());
 

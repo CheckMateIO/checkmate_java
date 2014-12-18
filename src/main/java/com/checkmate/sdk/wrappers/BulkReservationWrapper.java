@@ -22,6 +22,10 @@ public class BulkReservationWrapper implements ResourceWrapper {
     this.webhook = webhook;
   }
 
+  public BulkReservationWrapper(Collection<Reservation> reservations) {
+    this.reservations = new Reservations(reservations);
+  }
+
   public Object getResource() {
     return reservations;
   }
@@ -32,7 +36,7 @@ public class BulkReservationWrapper implements ResourceWrapper {
 
   // No query parameters for this call
   public List<NameValuePair> toQueryParams() {
-    if (!webhook.equals("")) {
+    if (webhook != null) {
       List<NameValuePair> params = new ArrayList<NameValuePair>();
       params.add(new BasicNameValuePair("webhook", webhook));
       return params;

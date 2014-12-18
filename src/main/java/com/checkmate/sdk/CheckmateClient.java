@@ -147,10 +147,20 @@ public class CheckmateClient {
    }
 
   /**
-   * Submits a bulk request to create reservations. A webhook url is optional.
+   * Submits a bulk request to create reservations.
+   */
+   public CheckmateResponse bulkCreateReservations(final Collection<Reservation> reservations) {
+     BulkReservationWrapper wrapper = new BulkReservationWrapper(reservations);
+     HttpUriRequest request = createPostRequest(wrapper);
+     return handleResponse(request);
+   }
+
+   /**
+   * Submits a bulk request to create reservations. Checkmate will post the response
+   * to the webhook url provided.
    */
    public CheckmateResponse bulkCreateReservations(final Collection<Reservation> reservations,
-        final String webhook) {
+   final String webhook) {
      BulkReservationWrapper wrapper = new BulkReservationWrapper(reservations, webhook);
      HttpUriRequest request = createPostRequest(wrapper);
      return handleResponse(request);
