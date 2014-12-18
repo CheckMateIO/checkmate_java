@@ -38,6 +38,8 @@ public class CheckmateClientTest {
   private static final String CONFIRMATION_NUMBER = "werlskdfj";
   private static final String GET_METHOD = "GET";
   private static final String POST_METHOD = "POST";
+  private static final String PATCH_METHOD = "PATCH";
+  private static final String DELETE_METHOD = "DELETE";
 
   private static final String HOTEL_NAME = "Hotel Kabuki";
   private static final String PHONE = "12345678901";
@@ -173,6 +175,38 @@ public class CheckmateClientTest {
     assertEquals("/properties", actualRequest.getURI().getPath());
     assertNotNull(actualRequest.getURI().getQuery());
     assertEquals(GET_METHOD, actualRequest.getMethod());
+    assertHeaders(actualRequest);
+  }
+
+  @Test
+  public void updateReservation() throws Exception {
+    ArgumentCaptor<HttpUriRequest> request = ArgumentCaptor.forClass(HttpUriRequest.class);
+    when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(httpResponse);
+    CheckmateResponse response = client.updateReservation(RESERVATION_ID, reservation);
+
+    verify(httpClient).execute(request.capture());
+
+    HttpUriRequest actualRequest = request.getValue();
+    assertEquals(new URI(CheckmateClient.DEFAULT_ENDPOINT + "/reservations/" + RESERVATION_ID),
+        actualRequest.getURI());
+    assertEquals(PATCH_METHOD, actualRequest.getMethod());
+    assertHeaders(actualRequest);
+    assertEquals(CheckmateClient.CONTENT_HEADER_VALUE,
+        actualRequest.getFirstHeader(CheckmateClient.CONTENT_HEADER_KEY).getValue());
+  }
+
+  @Test
+  public void deleteReservation() throws Exception {
+    ArgumentCaptor<HttpUriRequest> request = ArgumentCaptor.forClass(HttpUriRequest.class);
+    when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(httpResponse);
+    CheckmateResponse response = client.deleteReservation(RESERVATION_ID);
+
+    verify(httpClient).execute(request.capture());
+
+    HttpUriRequest actualRequest = request.getValue();
+    assertEquals(new URI(CheckmateClient.DEFAULT_ENDPOINT + "/reservations/" + RESERVATION_ID),
+    actualRequest.getURI());
+    assertEquals(DELETE_METHOD, actualRequest.getMethod());
     assertHeaders(actualRequest);
   }
 
