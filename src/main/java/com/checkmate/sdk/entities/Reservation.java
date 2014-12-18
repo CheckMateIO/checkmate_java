@@ -1,4 +1,4 @@
-package com.checkmate.sdk.reservations;
+package com.checkmate.sdk.entities;
 
 /**
 * Represents a reservation to be created in the Checkmate system.

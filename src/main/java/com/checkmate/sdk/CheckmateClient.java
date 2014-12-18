@@ -26,12 +26,15 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import com.checkmate.sdk.reservations.Reservation;
-import com.checkmate.sdk.reservations.ReservationsOptions;
+import com.checkmate.sdk.entities.Address;
+import com.checkmate.sdk.entities.Reservation;
+import com.checkmate.sdk.entities.ReservationsOptions;
 import com.checkmate.sdk.wrappers.CreateReservationWrapper;
 import com.checkmate.sdk.wrappers.ListReservationsWrapper;
-import com.checkmate.sdk.wrappers.ShowReservationWrapper;
+import com.checkmate.sdk.wrappers.PropertyWrapper;
 import com.checkmate.sdk.wrappers.ResourceWrapper;
+import com.checkmate.sdk.wrappers.ShowReservationWrapper;
+
 
 /**
  * The Checkmate REST client, used for creating and retrieving reservation
@@ -102,6 +105,16 @@ public class CheckmateClient {
    */
    public CheckmateResponse listReservations(final ReservationsOptions options) {
      ListReservationsWrapper wrapper = new ListReservationsWrapper(options);
+     HttpUriRequest request = createGetRequest(wrapper);
+     return handleResponse(request);
+   }
+
+  /**
+   * Fetches a property based on the property name, phone number, and address.
+   */
+   public CheckmateResponse getProperty(final String name, final String phone,
+      final Address address) {
+     PropertyWrapper wrapper = new PropertyWrapper(name, phone, address);
      HttpUriRequest request = createGetRequest(wrapper);
      return handleResponse(request);
    }

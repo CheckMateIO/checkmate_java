@@ -2,7 +2,7 @@ package com.checkmate.sdk.wrappers;
 
 import org.apache.http.NameValuePair;
 import java.util.List;
-import com.checkmate.sdk.reservations.Reservation;
+import com.checkmate.sdk.entities.Reservation;
 
 /**
  * Contains a Reservation object and any other parameters that can be associated

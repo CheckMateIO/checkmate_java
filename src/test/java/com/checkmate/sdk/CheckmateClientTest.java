@@ -1,6 +1,7 @@
 package com.checkmate.sdk;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -21,9 +22,10 @@ import org.apache.http.message.BasicStatusLine;
 import java.net.URI;
 
 import com.checkmate.sdk.CheckmateClient;
-import com.checkmate.sdk.reservations.Property;
-import com.checkmate.sdk.reservations.Reservation;
-import com.checkmate.sdk.reservations.ReservationsOptions;
+import com.checkmate.sdk.entities.Address;
+import com.checkmate.sdk.entities.Property;
+import com.checkmate.sdk.entities.Reservation;
+import com.checkmate.sdk.entities.ReservationsOptions;
 
 /**
  * Unit tests for the CheckmateClient.
@@ -37,12 +39,21 @@ public class CheckmateClientTest {
   private static final String GET_METHOD = "GET";
   private static final String POST_METHOD = "POST";
 
+  private static final String HOTEL_NAME = "Hotel Kabuki";
+  private static final String PHONE = "12345678901";
+  private static final String STREET_ADDRESS = "487 Bryant St";
+  private static final String CITY = "San Francisco";
+  private static final String REGION = "CA";
+  private static final String POSTAL_CODE = "94105";
+  private static final String COUNTRY_CODE = "US";
+
   @Mock HttpClient httpClient;
   @Mock BasicHttpResponse httpResponse;
   @Mock BasicStatusLine statusLine;
 
   private CheckmateClient client;
   private Reservation reservation;
+  private Address address;
 
   @Before
   public void setupVariables() {
@@ -57,9 +68,17 @@ public class CheckmateClientTest {
         .setStartOn("09/14/2015")
         .setEndOn("09/16/2015")
         .setProperty(new Property.Builder()
-            .setName("New Hotel")
+            .setName(HOTEL_NAME)
             .setFullAddress("487 Bryant St, San Francisco, CA 94115, US")
             .build())
+        .build();
+
+    address = new Address.Builder()
+        .setStreet(STREET_ADDRESS)
+        .setCity(CITY)
+        .setRegion(REGION)
+        .setPostalCode(POSTAL_CODE)
+        .setCountryCode(COUNTRY_CODE)
         .build();
   }
 
@@ -134,8 +153,25 @@ public class CheckmateClientTest {
     verify(httpClient).execute(request.capture());
 
     HttpUriRequest actualRequest = request.getValue();
-    assertEquals(new URI(CheckmateClient.DEFAULT_ENDPOINT + "/reservations?confirmation_number=" +
-        CONFIRMATION_NUMBER + "&exclude_properties=true"), actualRequest.getURI());
+    assertEquals("/reservations", actualRequest.getURI().getPath());
+    assertEquals("confirmation_number=" + CONFIRMATION_NUMBER + "&exclude_properties=true",
+        actualRequest.getURI().getQuery());
+    assertEquals(GET_METHOD, actualRequest.getMethod());
+    assertHeaders(actualRequest);
+  }
+
+  @Test
+  public void getProperty() throws Exception {
+    ArgumentCaptor<HttpUriRequest> request = ArgumentCaptor.forClass(HttpUriRequest.class);
+    when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(httpResponse);
+    CheckmateResponse response = client.getProperty(HOTEL_NAME, PHONE, address);
+
+    verify(httpClient).execute(request.capture());
+
+    HttpUriRequest actualRequest = request.getValue();
+
+    assertEquals("/properties", actualRequest.getURI().getPath());
+    assertNotNull(actualRequest.getURI().getQuery());
     assertEquals(GET_METHOD, actualRequest.getMethod());
     assertHeaders(actualRequest);
   }

@@ -1,6 +1,6 @@
 package com.checkmate.sdk.wrappers;
 
-import com.checkmate.sdk.reservations.ReservationsOptions;
+import com.checkmate.sdk.entities.ReservationsOptions;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
