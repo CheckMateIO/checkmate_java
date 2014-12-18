@@ -28,6 +28,7 @@ If you want to compile it yourself, here's how:
 ## Examples
 
 You will need your Checkmate API private key to use the client.
+Full documentation lives [here](https://partners.checkmate.io/docs).
 
 Below are some examples (also found in [RestExample.java](https://github.com/CheckMateIO/checkmate_java/blob/master/src/main/java/com/checkmate/sdk/examples/RestExample.java))
 
