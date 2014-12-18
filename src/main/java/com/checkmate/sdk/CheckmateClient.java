@@ -5,7 +5,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -18,6 +21,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -29,11 +34,14 @@ import com.google.gson.JsonObject;
 import com.checkmate.sdk.entities.Address;
 import com.checkmate.sdk.entities.Reservation;
 import com.checkmate.sdk.entities.ReservationsOptions;
+import com.checkmate.sdk.wrappers.BulkReservationWrapper;
 import com.checkmate.sdk.wrappers.CreateReservationWrapper;
+import com.checkmate.sdk.wrappers.DeleteReservationWrapper;
 import com.checkmate.sdk.wrappers.ListReservationsWrapper;
 import com.checkmate.sdk.wrappers.PropertyWrapper;
 import com.checkmate.sdk.wrappers.ResourceWrapper;
 import com.checkmate.sdk.wrappers.ShowReservationWrapper;
+import com.checkmate.sdk.wrappers.UpdateReservationWrapper;
 
 
 /**
@@ -101,6 +109,25 @@ public class CheckmateClient {
   }
 
   /**
+   * Updates the reservation with the fields set on the reservation object.
+   */
+  public CheckmateResponse updateReservation(final String reservationId,
+      final Reservation reservation) {
+    UpdateReservationWrapper wrapper = new UpdateReservationWrapper(reservationId, reservation);
+    HttpUriRequest request = createPatchRequest(wrapper);
+    return handleResponse(request);
+  }
+
+  /**
+   * Deletes a reservation.
+   */
+   public CheckmateResponse deleteReservation(final String reservationId) {
+     DeleteReservationWrapper wrapper = new DeleteReservationWrapper(reservationId);
+     HttpUriRequest request = createDeleteRequest(wrapper);
+     return handleResponse(request);
+   }
+
+  /**
    * Fetches a list of reservations.
    */
    public CheckmateResponse listReservations(final ReservationsOptions options) {
@@ -119,6 +146,26 @@ public class CheckmateClient {
      return handleResponse(request);
    }
 
+  /**
+   * Submits a bulk request to create reservations.
+   */
+   public CheckmateResponse bulkCreateReservations(final Collection<Reservation> reservations) {
+     BulkReservationWrapper wrapper = new BulkReservationWrapper(reservations);
+     HttpUriRequest request = createPostRequest(wrapper);
+     return handleResponse(request);
+   }
+
+   /**
+   * Submits a bulk request to create reservations. Checkmate will post the response
+   * to the webhook url provided.
+   */
+   public CheckmateResponse bulkCreateReservations(final Collection<Reservation> reservations,
+   final String webhook) {
+     BulkReservationWrapper wrapper = new BulkReservationWrapper(reservations, webhook);
+     HttpUriRequest request = createPostRequest(wrapper);
+     return handleResponse(request);
+   }
+
   // ------- private methods ----------------
 
   /**
@@ -128,21 +175,39 @@ public class CheckmateClient {
     URI uri = buildUri(resourceWrapper.getPath(), resourceWrapper.toQueryParams());
 
     HttpPost request = new HttpPost(uri);
-    request.setHeaders(defaultHeaders());
-    request.addHeader(new BasicHeader(CONTENT_HEADER_KEY, CONTENT_HEADER_VALUE));
-
-    try {
-      request.setEntity(new StringEntity(createHappyJson(resourceWrapper.getResource())));
-    } catch (UnsupportedEncodingException e) {
-      throw new RuntimeException("The encoding provided is not supported", e);
-    }
+    setHeadersAndEntities(request, resourceWrapper.getResource());
     return request;
   }
 
+  /**
+  * Creates a patch request, with the resource set as the body.
+  */
+  private HttpUriRequest createPatchRequest(final ResourceWrapper resourceWrapper) {
+    URI uri = buildUri(resourceWrapper.getPath(), resourceWrapper.toQueryParams());
+
+    HttpPatch request = new HttpPatch(uri);
+    setHeadersAndEntities(request, resourceWrapper.getResource());
+    return request;
+  }
+
+  /**
+   * Creates a get request, using the path and query parameters provided by the wrapper.
+   */
   private HttpUriRequest createGetRequest(final ResourceWrapper resourceWrapper) {
     URI uri = buildUri(resourceWrapper.getPath(), resourceWrapper.toQueryParams());
 
     HttpGet request = new HttpGet(uri);
+    request.setHeaders(defaultHeaders());
+    return request;
+  }
+
+  /**
+  * Creates a delete request, using the path and query parameters provided by the wrapper.
+  */
+  private HttpUriRequest createDeleteRequest(final ResourceWrapper resourceWrapper) {
+    URI uri = buildUri(resourceWrapper.getPath(), resourceWrapper.toQueryParams());
+
+    HttpDelete request = new HttpDelete(uri);
     request.setHeaders(defaultHeaders());
     return request;
   }
@@ -161,6 +226,20 @@ public class CheckmateClient {
       return new CheckmateResponse(statusCode, responseBody);
     } catch (IOException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Sets a header specifying a json body, and sets the entity on the request.
+   */
+  private void setHeadersAndEntities(HttpEntityEnclosingRequestBase request, Object entity) {
+    request.setHeaders(defaultHeaders());
+    request.addHeader(new BasicHeader(CONTENT_HEADER_KEY, CONTENT_HEADER_VALUE));
+
+    try {
+      request.setEntity(new StringEntity(createHappyJson(entity)));
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException("The encoding provided is not supported", e);
     }
   }
 

@@ -20,6 +20,7 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 
 import java.net.URI;
+import java.util.Arrays;
 
 import com.checkmate.sdk.CheckmateClient;
 import com.checkmate.sdk.entities.Address;
@@ -38,6 +39,8 @@ public class CheckmateClientTest {
   private static final String CONFIRMATION_NUMBER = "werlskdfj";
   private static final String GET_METHOD = "GET";
   private static final String POST_METHOD = "POST";
+  private static final String PATCH_METHOD = "PATCH";
+  private static final String DELETE_METHOD = "DELETE";
 
   private static final String HOTEL_NAME = "Hotel Kabuki";
   private static final String PHONE = "12345678901";
@@ -46,13 +49,15 @@ public class CheckmateClientTest {
   private static final String REGION = "CA";
   private static final String POSTAL_CODE = "94105";
   private static final String COUNTRY_CODE = "US";
+  private static final String WEBHOOK = "webhook";
 
   @Mock HttpClient httpClient;
   @Mock BasicHttpResponse httpResponse;
   @Mock BasicStatusLine statusLine;
 
   private CheckmateClient client;
-  private Reservation reservation;
+  private Reservation reservation1;
+  private Reservation reservation2;
   private Address address;
 
   @Before
@@ -60,7 +65,7 @@ public class CheckmateClientTest {
     client = new CheckmateClient(API_KEY);
     client.setHttpClient(httpClient);
 
-    reservation = new Reservation.Builder()
+    Reservation.Builder reservationBuilder = new Reservation.Builder()
         .setExternalId("externalId12")
         .setConfirmationNumber("2rfsdfsf2sddj433")
         .setLastName("Smith")
@@ -70,8 +75,9 @@ public class CheckmateClientTest {
         .setProperty(new Property.Builder()
             .setName(HOTEL_NAME)
             .setFullAddress("487 Bryant St, San Francisco, CA 94115, US")
-            .build())
-        .build();
+            .build());
+    reservation1 = reservationBuilder.build();
+    reservation2 = reservationBuilder.setExternalId("externalId13").build();
 
     address = new Address.Builder()
         .setStreet(STREET_ADDRESS)
@@ -92,7 +98,7 @@ public class CheckmateClientTest {
   public void createReservation() throws Exception {
     ArgumentCaptor<HttpUriRequest> request = ArgumentCaptor.forClass(HttpUriRequest.class);
     when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(httpResponse);
-    CheckmateResponse response = client.createReservation(reservation);
+    CheckmateResponse response = client.createReservation(reservation1);
 
     verify(httpClient).execute(request.capture());
 
@@ -174,6 +180,70 @@ public class CheckmateClientTest {
     assertNotNull(actualRequest.getURI().getQuery());
     assertEquals(GET_METHOD, actualRequest.getMethod());
     assertHeaders(actualRequest);
+  }
+
+  @Test
+  public void updateReservation() throws Exception {
+    ArgumentCaptor<HttpUriRequest> request = ArgumentCaptor.forClass(HttpUriRequest.class);
+    when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(httpResponse);
+    CheckmateResponse response = client.updateReservation(RESERVATION_ID, reservation1);
+
+    verify(httpClient).execute(request.capture());
+
+    HttpUriRequest actualRequest = request.getValue();
+    assertEquals(new URI(CheckmateClient.DEFAULT_ENDPOINT + "/reservations/" + RESERVATION_ID),
+        actualRequest.getURI());
+    assertEquals(PATCH_METHOD, actualRequest.getMethod());
+    assertHeaders(actualRequest);
+    assertEquals(CheckmateClient.CONTENT_HEADER_VALUE,
+        actualRequest.getFirstHeader(CheckmateClient.CONTENT_HEADER_KEY).getValue());
+  }
+
+  @Test
+  public void deleteReservation() throws Exception {
+    ArgumentCaptor<HttpUriRequest> request = ArgumentCaptor.forClass(HttpUriRequest.class);
+    when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(httpResponse);
+    CheckmateResponse response = client.deleteReservation(RESERVATION_ID);
+
+    verify(httpClient).execute(request.capture());
+
+    HttpUriRequest actualRequest = request.getValue();
+    assertEquals(new URI(CheckmateClient.DEFAULT_ENDPOINT + "/reservations/" + RESERVATION_ID),
+        actualRequest.getURI());
+    assertEquals(DELETE_METHOD, actualRequest.getMethod());
+    assertHeaders(actualRequest);
+  }
+
+  @Test
+  public void createBulkReservationsNoWebhook() throws Exception {
+    ArgumentCaptor<HttpUriRequest> request = ArgumentCaptor.forClass(HttpUriRequest.class);
+    when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(httpResponse);
+    CheckmateResponse response = client.bulkCreateReservations(
+        Arrays.asList(reservation1, reservation2));
+
+    verify(httpClient).execute(request.capture());
+
+    HttpUriRequest actualRequest = request.getValue();
+    assertEquals(new URI(CheckmateClient.DEFAULT_ENDPOINT + "/reservations/bulk_create"),
+        actualRequest.getURI());
+    assertEquals(POST_METHOD, actualRequest.getMethod());
+    assertHeaders(actualRequest);
+    assertEquals(CheckmateClient.CONTENT_HEADER_VALUE,
+        actualRequest.getFirstHeader(CheckmateClient.CONTENT_HEADER_KEY).getValue());
+  }
+
+  @Test
+  public void createBulkReservationsWithWebhook() throws Exception {
+    ArgumentCaptor<HttpUriRequest> request = ArgumentCaptor.forClass(HttpUriRequest.class);
+    when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(httpResponse);
+    CheckmateResponse response = client.bulkCreateReservations(
+        Arrays.asList(reservation1, reservation2), WEBHOOK);
+
+    verify(httpClient).execute(request.capture());
+
+    HttpUriRequest actualRequest = request.getValue();
+    assertEquals(new URI(CheckmateClient.DEFAULT_ENDPOINT + "/reservations/bulk_create" +
+        "?webhook=" + WEBHOOK), actualRequest.getURI());
   }
 
   private void assertHeaders(HttpUriRequest request) {

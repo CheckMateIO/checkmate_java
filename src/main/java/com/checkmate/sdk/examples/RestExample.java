@@ -7,6 +7,9 @@ import com.checkmate.sdk.entities.Property;
 import com.checkmate.sdk.entities.Reservation;
 import com.checkmate.sdk.entities.ReservationsOptions;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
 * Contains examples of how to use the CheckmateClient.
 */
@@ -19,6 +22,16 @@ public class RestExample {
     // Create a rest client
     CheckmateClient client = new CheckmateClient(API_KEY);
 
+    createReservation(client);
+    bulkCreateReservations(client);
+    showReservation(client);
+    listReservations(client);
+    updateReservation(client);
+    deleteReservation(client);
+    getProperty(client);
+  }
+
+  private static void createReservation(CheckmateClient client) {
     Reservation res = new Reservation.Builder()
         .setExternalId("externalId12")
         .setConfirmationNumber("2rfsdfsf2sddj433")
@@ -35,20 +48,65 @@ public class RestExample {
     // Create a reservation
     CheckmateResponse response = client.createReservation(res);
     System.out.println(response.getBodyAsString());
+  }
 
-    // Retrieves a reservation
-    response = client.showReservation("123345slfdkj");
+  private static void bulkCreateReservations(CheckmateClient client) {
+    Reservation.Builder resBuilder = new Reservation.Builder()
+        .setExternalId("externalId12")
+        .setConfirmationNumber("2rfsdfsf2sddj433")
+        .setLastName("Smith")
+        .setEmail("John@smith.com")
+        .setStartOn("09/14/2015")
+        .setEndOn("09/16/2015")
+        .setProperty(new Property.Builder()
+            .setName("New Hotel")
+            .setFullAddress("487 Bryant St, San Francisco, CA 94115, US")
+            .build());
+
+    Reservation res1 = resBuilder.setExternalId("externalId13").build();
+    Reservation res2 = resBuilder.setExternalId("externalId14").build();
+    List<Reservation> reservations = Arrays.asList(res1, res2);
+
+    // Create several reservations
+    CheckmateResponse response = client.bulkCreateReservations(reservations);
     System.out.println(response.getBodyAsString());
 
+    response = client.bulkCreateReservations(reservations, "mywebhook");
+    System.out.println(response.getBodyAsString());
+  }
+
+  private static void showReservation(CheckmateClient client) {
+    CheckmateResponse response = client.showReservation("123345slfdkj");
+    System.out.println(response.getBodyAsString());
+  }
+
+  private static void listReservations(CheckmateClient client) {
     // Lists reservations
     ReservationsOptions options = new ReservationsOptions.Builder()
         .setExcludeProperties(true)
         .setConfirmationNumber("234908sdf")
         .build();
 
-    response = client.listReservations(options);
+    CheckmateResponse response = client.listReservations(options);
     System.out.println(response.getBodyAsString());
+  }
 
+  private static void updateReservation(CheckmateClient client) {
+    // Updates a reservation
+    Reservation updateRes = new Reservation.Builder()
+        .setEmail("Frank@smith.com")
+        .build();
+    CheckmateResponse response = client.updateReservation("2394709", updateRes);
+    System.out.println(response.getBodyAsString());
+  }
+
+  private static void deleteReservation(CheckmateClient client) {
+    // Deletes a reservation
+    CheckmateResponse response = client.deleteReservation("2384089");
+    System.out.println(response.getBodyAsString());
+  }
+
+  private static void getProperty(CheckmateClient client) {
     // Fetches a property
     Address propertyAddress = new Address.Builder()
         .setStreet("123 Happy Ln")
@@ -57,7 +115,7 @@ public class RestExample {
         .setPostalCode("34567")
         .setCountryCode("US")
         .build();
-    response = client.getProperty("Hotel Sun", "12345674567", propertyAddress);
+    CheckmateResponse response = client.getProperty("Hotel Sun", "12345674567", propertyAddress);
     System.out.println(response.getBodyAsString());
   }
 }
