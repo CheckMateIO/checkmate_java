@@ -68,7 +68,7 @@ public class RestExample {
     List<Reservation> reservations = Arrays.asList(res1, res2);
 
     // Create several reservations
-    CheckmateResponse response = client.bulkCreateReservations(reservations, "" /* no webhook */);
+    CheckmateResponse response = client.bulkCreateReservations(reservations);
     System.out.println(response.getBodyAsString());
 
     response = client.bulkCreateReservations(reservations, "mywebhook");
