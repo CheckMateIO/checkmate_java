@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -32,6 +34,7 @@ import com.google.gson.JsonObject;
 import com.checkmate.sdk.entities.Address;
 import com.checkmate.sdk.entities.Reservation;
 import com.checkmate.sdk.entities.ReservationsOptions;
+import com.checkmate.sdk.wrappers.BulkReservationWrapper;
 import com.checkmate.sdk.wrappers.CreateReservationWrapper;
 import com.checkmate.sdk.wrappers.DeleteReservationWrapper;
 import com.checkmate.sdk.wrappers.ListReservationsWrapper;
@@ -140,6 +143,16 @@ public class CheckmateClient {
       final Address address) {
      PropertyWrapper wrapper = new PropertyWrapper(name, phone, address);
      HttpUriRequest request = createGetRequest(wrapper);
+     return handleResponse(request);
+   }
+
+  /**
+   * Submits a bulk request to create reservations. A webhook url is optional.
+   */
+   public CheckmateResponse bulkCreateReservations(final Collection<Reservation> reservations,
+        final String webhook) {
+     BulkReservationWrapper wrapper = new BulkReservationWrapper(reservations, webhook);
+     HttpUriRequest request = createPostRequest(wrapper);
      return handleResponse(request);
    }
 

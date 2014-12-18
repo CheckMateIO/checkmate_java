@@ -7,6 +7,9 @@ import com.checkmate.sdk.entities.Property;
 import com.checkmate.sdk.entities.Reservation;
 import com.checkmate.sdk.entities.ReservationsOptions;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
 * Contains examples of how to use the CheckmateClient.
 */
@@ -20,6 +23,7 @@ public class RestExample {
     CheckmateClient client = new CheckmateClient(API_KEY);
 
     createReservation(client);
+    bulkCreateReservations(client);
     showReservation(client);
     listReservations(client);
     updateReservation(client);
@@ -43,6 +47,31 @@ public class RestExample {
 
     // Create a reservation
     CheckmateResponse response = client.createReservation(res);
+    System.out.println(response.getBodyAsString());
+  }
+
+  private static void bulkCreateReservations(CheckmateClient client) {
+    Reservation.Builder resBuilder = new Reservation.Builder()
+        .setExternalId("externalId12")
+        .setConfirmationNumber("2rfsdfsf2sddj433")
+        .setLastName("Smith")
+        .setEmail("John@smith.com")
+        .setStartOn("09/14/2015")
+        .setEndOn("09/16/2015")
+        .setProperty(new Property.Builder()
+            .setName("New Hotel")
+            .setFullAddress("487 Bryant St, San Francisco, CA 94115, US")
+            .build());
+
+    Reservation res1 = resBuilder.setExternalId("externalId13").build();
+    Reservation res2 = resBuilder.setExternalId("externalId14").build();
+    List<Reservation> reservations = Arrays.asList(res1, res2);
+
+    // Create several reservations
+    CheckmateResponse response = client.bulkCreateReservations(reservations, "" /* no webhook */);
+    System.out.println(response.getBodyAsString());
+
+    response = client.bulkCreateReservations(reservations, "mywebhook");
     System.out.println(response.getBodyAsString());
   }
 
